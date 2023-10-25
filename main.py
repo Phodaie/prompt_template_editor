@@ -4,11 +4,15 @@ import json
 from typing import List, Dict
 from pydantic import BaseModel
 
+# class Template(BaseModel):
+#     template_id: str
+#     content: str
+
 class Template(BaseModel):
     template_id: str
     content: str
-
-
+    variableNames: List[str] = []
+    maxWords: int = 100
 
 def get_templates()->List[Template]:
     
@@ -44,6 +48,9 @@ def main():
 
         with st.expander(template.template_id): 
             template.content = st.text_area('', template.content , height=200 , key=template.template_id)
+
+            st.write(', '.join(template.variableNames))
+
         
     
     st.button("Update",on_click=update_templates)
