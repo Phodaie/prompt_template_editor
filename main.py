@@ -25,9 +25,10 @@ def update_templates():
     
     for template in templates:
         response = requests.put(f"https://9v7s2vz54k.execute-api.us-east-1.amazonaws.com/Prod/templates/{template.template_id}",data=json.dumps(template.dict()))
-        st.success(json.dumps(template.dict()))
+        
         if response.status_code == 200:
-            st.success(f"Template {template.template_id} updated")
+            #st.success(f"Template {template.template_id} updated")
+            pass
         else:
             st.error(f"Template {template.template_id} failed to update")
 
@@ -42,7 +43,7 @@ def main():
     for template in templates:
 
         with st.expander(template.template_id): 
-            template.content = st.text_area('', template.content , height=200)
+            template.content = st.text_area('', template.content , height=200 , key=template.template_id)
         
     
     st.button("Update",on_click=update_templates)
