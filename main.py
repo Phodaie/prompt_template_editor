@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 import json
-from typing import List, Dict
+from typing import List, Dict, Literal
 from pydantic import BaseModel
 
 # class Template(BaseModel):
@@ -16,7 +16,7 @@ class Template(BaseModel):
 
 def get_templates()->List[Template]:
     
-    response = requests.get("https://lmwznlj2ta.execute-api.us-east-1.amazonaws.com/Prod/templates")
+    response = requests.get(f"https://lmwznlj2ta.execute-api.us-east-1.amazonaws.com/Prod/templates/{user_name}")
 
     if response.status_code == 200:
         templates = json.loads(response.content.decode())
@@ -28,7 +28,7 @@ def get_templates()->List[Template]:
 def update_templates():
     
     for template in templates:
-        response = requests.put(f"https://lmwznlj2ta.execute-api.us-east-1.amazonaws.com/Prod/templates/{template.template_id}",data=json.dumps(template.dict()))
+        response = requests.put(f"https://lmwznlj2ta.execute-api.us-east-1.amazonaws.com/Prod/templates/{user_name}",data=json.dumps(template.dict()))
         
         if response.status_code == 200:
             #st.success(f"Template {template.template_id} updated")
@@ -37,10 +37,21 @@ def update_templates():
             st.error(f"Template {template.template_id} failed to update")
 
 templates : List[Template] = []
+user_name : Literal['User1', 'User2', 'User'] = 'User1'
 
 def main():
     st.subheader("Prompt Template Editor")
     
+    global user_name 
+    user_name = st.selectbox(
+        "Prompt templates for:",
+        ("User1", "User2", "User3"),
+        index=0,
+        #placeholder="Select contact method...",
+    )
+    
+    st.write(f"{user_name} templates")
+
     global templates
     templates = get_templates()
 
