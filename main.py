@@ -16,7 +16,7 @@ class Template(BaseModel):
 
 def get_templates()->List[Template]:
     
-    response = requests.get("https://9v7s2vz54k.execute-api.us-east-1.amazonaws.com/Prod/templates")
+    response = requests.get("https://lmwznlj2ta.execute-api.us-east-1.amazonaws.com/Prod/templates")
 
     if response.status_code == 200:
         templates = json.loads(response.content.decode())
@@ -28,7 +28,7 @@ def get_templates()->List[Template]:
 def update_templates():
     
     for template in templates:
-        response = requests.put(f"https://9v7s2vz54k.execute-api.us-east-1.amazonaws.com/Prod/templates/{template.template_id}",data=json.dumps(template.dict()))
+        response = requests.put(f"https://lmwznlj2ta.execute-api.us-east-1.amazonaws.com/Prod/templates/{template.template_id}",data=json.dumps(template.dict()))
         
         if response.status_code == 200:
             #st.success(f"Template {template.template_id} updated")
