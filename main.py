@@ -13,6 +13,7 @@ class Template(BaseModel):
     content: str
     variableNames: List[str] = []
     maxWords: int = 100
+    height: int = 300
 
 def get_templates()->List[Template]:
     
@@ -58,7 +59,7 @@ def main():
     for template in templates:
 
         with st.expander(template.template_id): 
-            template.content = st.text_area('', template.content , height=200 , key=template.template_id)
+            template.content = st.text_area('', template.content , height=template.height , key=template.template_id)
 
             st.write(', '.join(template.variableNames))
 
