@@ -4,9 +4,8 @@ import json
 from typing import List, Dict, Literal
 from pydantic import BaseModel
 
-# class Template(BaseModel):
-#     template_id: str
-#     content: str
+from template_validation import validate_template
+
 
 class Template(BaseModel):
     template_id: str
@@ -62,6 +61,8 @@ def main():
             template.content = st.text_area('', template.content , height=template.height , key=template.template_id)
 
             st.write(', '.join(template.variableNames))
+
+            st.markdown(validate_template(template.content,template.variableNames))
 
         
     
