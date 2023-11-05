@@ -27,7 +27,7 @@ def highlight_placeholders_with_html(input_string, allowed_placeholders):
     macros = macro_pattern.findall(input_string)
     
     # Start the HTML with a div that sets the font-family to Nunito Sans and overflow to auto for scrolling
-    html_output = '<div style="font-family: \'Nunito Sans\', sans-serif; overflow: auto; max-height: 200px;">'
+    html_output = '<div style="font-family: \'Nunito Sans\', sans-serif; overflow: auto; max-height: 480px;">'
     
     # Highlight macros with HTML span tags in purple
     for macro in set(macros):
