@@ -41,7 +41,7 @@ templates : List[Template] = []
 user_name : Literal['User1', 'User2', 'User'] = 'User1'
 
 def main():
-    st.subheader("Prompt Template Editor")
+    st.subheader("Simulation Prompt Templates")
     
 
     global user_name 
