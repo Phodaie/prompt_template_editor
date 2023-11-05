@@ -7,17 +7,6 @@ import streamlit.components.v1 as components
 
 from template_validation import highlight_placeholders_with_html
 
-import os
-# Check if the file exists
-assert os.path.isfile('template_validation.py'), "template_validation.py does not exist in the current directory."
-
-# Try to import the function
-try:
-    from template_validation import highlight_placeholders_with_html
-except ImportError as e:
-    print(f"ImportError: {e}")
-except Exception as e:
-    print(f"An error occurred: {e}")
 
 class Template(BaseModel):
     template_id: str
