@@ -1,59 +1,69 @@
 import re
+import json
 
 
-
-def highlight_placeholders_with_html(input_string, allowed_placeholders):
-    # Regular expression to find JSON blocks
-    json_pattern = re.compile(r"```json(.+?)```", re.DOTALL)
-    
-    # Find all JSON blocks in the input string
-    json_blocks = json_pattern.findall(input_string)
-    
-    # Escape HTML within JSON blocks and replace them with a placeholder in the input_string
-    for i, json_block in enumerate(json_blocks):
-        escaped_json = json_block.replace('<', '&lt;').replace('>', '&gt;').replace('&', '&amp;')
-        placeholder = f"__JSON_BLOCK_{i}__"
-        input_string = input_string.replace(f"```json{json_block}```", placeholder)
-    
-    # Escape HTML tags by replacing < and > with their HTML entities
+# Updated function to preserve newlines in the HTML output
+def highlight_placeholders_and_macros_with_html(input_string, allowed_placeholders , height=300):
+    # Step 1: Escape all < and > in the input to prevent HTML injection
     input_string = input_string.replace('<', '&lt;').replace('>', '&gt;')
 
-    # Regular expression to find all placeholders and macros
+    # Step 2: Identify and temporarily remove JSON blocks, storing them for later
+    json_blocks = []
+    def extract_json_block(match):
+        json_blocks.append(match.group(1))  # Store the JSON block
+        return f"__JSON_BLOCK_{len(json_blocks) - 1}__"  # Return a placeholder
+
+    # Use regex to find JSON blocks and replace them with placeholders
+    input_string = re.sub(r"```json(.+?)```", extract_json_block, input_string, flags=re.DOTALL)
+
+    # Step 3: Identify placeholders and macros
     placeholder_pattern = re.compile(r"\{\{(.+?)\}\}")
     macro_pattern = re.compile(r"(#IF|#ELSEIF|#ELSE|#ENDIF)")
-    
-    # Find all placeholders and macros in the input string
+
+    # Extract placeholders and macros from the input
     extracted_placeholders = placeholder_pattern.findall(input_string)
     macros = macro_pattern.findall(input_string)
-    
-    # Start the HTML with a div that sets the font-family to Nunito Sans and overflow to auto for scrolling
-    html_output = '<div style="font-family: \'Nunito Sans\', sans-serif; overflow: auto; max-height: 480px;">'
-    
-    # Highlight macros with HTML span tags in purple
+
+    # Step 4: Highlight macros and placeholders
+    # Highlight macros in purple
     for macro in set(macros):
         input_string = input_string.replace(macro, f'<span style="color: purple;">{macro}</span>')
-    
-    # Format extracted placeholders to match the allowed format
-    formatted_placeholders = [f"{{{{{placeholder}}}}}" for placeholder in extracted_placeholders]
-    
-    # Highlight placeholders with HTML span tags
-    for placeholder in formatted_placeholders:
-        if placeholder in allowed_placeholders:
+
+    # Highlight placeholders depending on whether they are allowed or not
+    for placeholder in set(extracted_placeholders):
+        placeholder_tag = f"{{{{{placeholder}}}}}"
+        if placeholder_tag in allowed_placeholders:
             # Allowed placeholders are highlighted in green
-            input_string = input_string.replace(placeholder, f'<span style="color: green;">{placeholder}</span>')
+            input_string = input_string.replace(placeholder_tag, f'<span style="color: green;">{placeholder_tag}</span>')
         else:
             # Unallowed placeholders are highlighted in red
-            input_string = input_string.replace(placeholder, f'<span style="color: red;">{placeholder}</span>')
-    
-    # Replace placeholders with formatted JSON blocks
+            input_string = input_string.replace(placeholder_tag, f'<span style="color: red;">{placeholder_tag}</span>')
+
+    # Step 5: Validate and reinsert JSON blocks, now highlighted
     for i, json_block in enumerate(json_blocks):
-        placeholder = f"__JSON_BLOCK_{i}__"
-        formatted_json = f'<pre style="background-color: #f6f8fa;"><code>{json_block.replace("<", "&lt;").replace(">", "&gt;").replace("&", "&amp;")}</code></pre>'
-        input_string = input_string.replace(placeholder, formatted_json)
-    
-    # Append the processed input string to the HTML output
-    html_output += input_string.replace('\n', '<br>') + '</div>'
+        # Try to parse the JSON block to check if it's well-formed
+        try:
+            # Remove comments and reformat
+            json_block_no_comments = re.sub(r'//.*', '', json_block)
+            parsed_json = json.loads(json_block_no_comments)
+            formatted_json = json.dumps(parsed_json, indent=4)
+            json_formatted = f'<pre style="background-color: #f6f8fa;"><code>{formatted_json}</code></pre>'
+        except json.JSONDecodeError as e:
+            # JSON is invalid; highlight the error inline in red
+            json_error_line = e.lineno
+            json_error_col = e.colno
+            json_lines = json_block.splitlines()
+            json_lines[json_error_line - 1] = re.sub(
+                r"^(.{" + str(json_error_col - 1) + r"})(.)", 
+                r'\1<span style="color: red; font-weight: bold;">\2</span>',
+                json_lines[json_error_line - 1]
+            )
+            highlighted_json = "\n".join(json_lines)
+            json_formatted = f'<pre style="background-color: #f6f8fa;"><code>{highlighted_json}</code></pre>'
+        input_string = input_string.replace(f"__JSON_BLOCK_{i}__", json_formatted)
+
+    # Step 6: Wrap the result in a div with scrollable content, Nunito Sans font, and preserve whitespace and newlines
+    html_output = f'<div style="font-family: \'Nunito Sans\', sans-serif; overflow: auto; max-height: {height}px; white-space: pre-wrap;">{input_string}</div>'
     
     return html_output
-
 

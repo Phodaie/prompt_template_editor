@@ -5,7 +5,7 @@ from typing import List, Dict, Literal
 from pydantic import BaseModel
 import streamlit.components.v1 as components
 
-from template_validation import highlight_placeholders_with_html
+from template_validation import highlight_placeholders_and_macros_with_html
 
 
 class Template(BaseModel):
@@ -65,7 +65,7 @@ def main():
             st.write(', '.join(template.variableNames))
 
             if st.button('Validate' , key=f'{template.template_id}_va'):
-                components.html(highlight_placeholders_with_html(template.content,template.variableNames), height=500)
+                components.html(highlight_placeholders_and_macros_with_html(template.content,template.variableNames , template.height - 20), height=template.height , scrolling=True)
 
         
     
