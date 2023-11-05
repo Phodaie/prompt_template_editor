@@ -3,8 +3,9 @@ import requests
 import json
 from typing import List, Dict, Literal
 from pydantic import BaseModel
+import streamlit.components.v1 as components
 
-from template_validation import validate_template
+from template_validation import highlight_placeholders_with_html
 
 
 class Template(BaseModel):
@@ -42,6 +43,7 @@ user_name : Literal['User1', 'User2', 'User'] = 'User1'
 def main():
     st.subheader("Prompt Template Editor")
     
+
     global user_name 
     user_name = st.selectbox(
         "Prompt templates for:",
@@ -62,7 +64,8 @@ def main():
 
             st.write(', '.join(template.variableNames))
 
-            st.markdown(validate_template(template.content,template.variableNames))
+            if st.button('Validate' , key=f'{template.template_id}_va'):
+                components.html(highlight_placeholders_with_html(template.content,template.variableNames), height=500)
 
         
     
