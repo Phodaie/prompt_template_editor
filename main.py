@@ -41,13 +41,16 @@ templates : List[Template] = []
 user_name : Literal['User1', 'User2', 'User'] = 'User1'
 
 def main():
+
+    st.set_page_config(page_title="Template Editor", page_icon=":pencil2:" , layout="wide")
+    
     st.subheader("Simulation Prompt Templates")
     
 
     global user_name 
     user_name = st.selectbox(
         "Prompt templates for:",
-        ("User1", "User2", "User3"),
+        ("User1", "User2", "User3" , "User4"),
         index=0,
         #placeholder="Select contact method...",
     )
