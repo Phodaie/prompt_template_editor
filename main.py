@@ -18,6 +18,7 @@ class Template(BaseModel):
 def get_templates()->List[Template]:
     
     response = requests.get(f"https://lmwznlj2ta.execute-api.us-east-1.amazonaws.com/Prod/templates/{user_name}")
+    #response = requests.get(f"http://127.0.0.1:8000/templates/{user_name}")
 
     if response.status_code == 200:
         templates = json.loads(response.content.decode())
@@ -28,17 +29,26 @@ def get_templates()->List[Template]:
 
 def update_templates():
     
-    for template in templates:
-        response = requests.put(f"https://lmwznlj2ta.execute-api.us-east-1.amazonaws.com/Prod/templates/{user_name}",data=json.dumps(template.dict()))
+    dictTemplates = [template.model_dump() for template in templates]
+    response = requests.put(f"https://lmwznlj2ta.execute-api.us-east-1.amazonaws.com/Prod/templates/{user_name}",data=json.dumps(dictTemplates))
+    #response = requests.put(f"http://127.0.0.1:8000/templates/{user_name}",data=json.dumps(dictTemplates))
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!")
+    if response.status_code == 200:
+        st.success(f"Templates updated")
+    else:
+        st.error(f"Templates failed to update")
+
+    # for template in templates:
+    #     response = requests.put(f"https://lmwznlj2ta.execute-api.us-east-1.amazonaws.com/Prod/templates/{user_name}",data=json.dumps(template.model_dump()))
         
-        if response.status_code == 200:
-            #st.success(f"Template {template.template_id} updated")
-            pass
-        else:
-            st.error(f"Template {template.template_id} failed to update")
+    #     if response.status_code == 200:
+    #         #st.success(f"Template {template.template_id} updated")
+    #         pass
+    #     else:
+    #         st.error(f"Template {template.template_id} failed to update")
 
 templates : List[Template] = []
-user_name : Literal['User1', 'User2', 'User'] = 'User1'
+user_name : Literal['User1', 'User2', 'User3' , 'User4' ] = 'User1'
 
 def main():
 
